@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: rgb(206, 255, 255);
+  background: linear-gradient(
+      304deg,
+      rgba(206, 255, 255, 1) 0%,
+      rgba(224, 193, 247, 1) 17%,
+      rgba(186, 219, 227, 1) 46%,
+      rgba(205, 172, 201, 1) 100%
+    )
+    no-repeat fixed;
+  background-size: cover;
+}

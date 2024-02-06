@@ -1,5 +1,7 @@
 import { Component } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Container, Row } from "react-bootstrap";
+import { TodoForm } from "./Form";
 
 type Todo = {
   id: string;
@@ -56,24 +58,25 @@ const move = (
   return result;
 };
 */
-const grid = 8;
+const grid = 10;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
   // some basic styles to make the items look a bit nicer
   userSelect: "none",
-  padding: grid * 2,
+  padding: grid,
   margin: `0 0 ${grid}px 0`,
 
   // change background color if dragging
-  background: isDragging ? "lightgreen" : "grey",
+  background: isDragging ? "#b9a5ca" : "white",
+  color: isDragging ? "white" : "#b9a5ca",
 
   // styles we need to apply on draggable
   ...draggableStyle,
 });
 
 const getListStyle = (isDraggingOver: boolean) => ({
-  background: isDraggingOver ? "lightblue" : "lightgrey",
+  background: isDraggingOver ? "lightblue" : "#b9a5ca",
   padding: grid,
   width: 250,
 });
@@ -84,20 +87,21 @@ class App extends Component {
     todos: [] as Todo[],
     inputValue: "",
   };
-  addTodo = (e: React.FormEvent<HTMLFormElement>) => {
+  addTodo = (e) => {
     e.preventDefault();
 
-    const { inputValue, todos } = this.state;
-
-    if (inputValue.trim() !== "") {
-      const newTodo: Todo = { id: `todo-${todos.length}`, content: inputValue };
+    if (this.state.inputValue.trim() !== "") {
+      const newTodo = {
+        id: `todo-${this.state.todos.length}`,
+        content: this.state.inputValue,
+      };
       this.setState({
-        todos: [...todos, newTodo],
+        todos: [...this.state.todos, newTodo],
         inputValue: "", // Clearing the input field after adding todo
-        items: getItems(todos.length + 1),
       });
     }
   };
+
   handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ inputValue: e.target.value });
   };
@@ -167,48 +171,53 @@ class App extends Component {
     const { todos, inputValue } = this.state;
     return (
       <>
-        <form
-          action="
-        "
-          onSubmit={this.addTodo}
-        >
-          <input
-            type="text"
-            value={inputValue}
-            onChange={this.handleInputChange}
-          />
-          <button type="submit">Add Todo</button>
-        </form>
-
-        <DragDropContext onDragEnd={this.onDragEnd}>
-          <Droppable droppableId="droppable">
-            {(provided, snapshot) => (
-              <div
-                ref={provided.innerRef}
-                style={getListStyle(snapshot.isDraggingOver)}
-              >
-                {todos.map((todo, index) => (
-                  <Draggable key={todo.id} draggableId={todo.id} index={index}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        style={getItemStyle(
-                          snapshot.isDragging,
-                          provided.draggableProps.style
-                        )}
+        <Container className="my-5 text-center">
+          <Row className="pt-5">
+            <TodoForm
+              addTodo={this.addTodo}
+              handleInputChange={this.handleInputChange}
+              inputValue={inputValue}
+            />
+          </Row>
+          <Row
+            className="my-5"
+            style={{ display: "flex", justifyContent: "center" }}
+          >
+            <DragDropContext onDragEnd={this.onDragEnd}>
+              <Droppable droppableId="droppable">
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    style={getListStyle(snapshot.isDraggingOver)}
+                  >
+                    {todos.map((todo, index) => (
+                      <Draggable
+                        key={todo.id}
+                        draggableId={todo.id}
+                        index={index}
                       >
-                        {todo.content}
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={getItemStyle(
+                              snapshot.isDragging,
+                              provided.draggableProps.style
+                            )}
+                          >
+                            {todo.content}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </Row>
+        </Container>
       </>
     );
   }
