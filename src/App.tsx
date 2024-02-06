@@ -1,18 +1,26 @@
 import { Component } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
+type Todo = {
+  id: string;
+  content: string;
+};
 // fake data generator
-const getItems = (count: number, offset = 0) =>
+const getItems = (count: number): Todo[] =>
   Array.from({ length: count }, (_, k) => k).map((k) => ({
-    id: `item-${k + offset}`,
-    content: `item ${k + offset}`,
+    id: `item-${k}`,
+    content: `item ${k}`,
   }));
 
+/*
 type Quote = {
   id: string;
   content: string;
 };
-// a little function to help us with reordering the result
+
+
+
+a little function to help us with reordering the result
 const reorder = (
   list: Quote[],
   startIndex: number,
@@ -24,10 +32,11 @@ const reorder = (
 
   return result;
 };
+*/
 
 /**
  * Moves an item from one list to another list.
- */
+ 
 const move = (
   source: Quote[],
   destination: Quote[],
@@ -46,7 +55,7 @@ const move = (
 
   return result;
 };
-
+*/
 const grid = 8;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,23 +80,42 @@ const getListStyle = (isDraggingOver: boolean) => ({
 
 class App extends Component {
   state = {
-    items: getItems(10),
-    selected: getItems(5, 10),
+    items: getItems(0),
+    todos: [] as Todo[],
+    inputValue: "",
+  };
+  addTodo = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const { inputValue, todos } = this.state;
+
+    if (inputValue.trim() !== "") {
+      const newTodo: Todo = { id: `todo-${todos.length}`, content: inputValue };
+      this.setState({
+        todos: [...todos, newTodo],
+        inputValue: "", // Clearing the input field after adding todo
+        items: getItems(todos.length + 1),
+      });
+    }
+  };
+  handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ inputValue: e.target.value });
   };
 
   /**
    * A semi-generic way to handle multiple lists. Matches
    * the IDs of the droppable container to the names of the
    * source arrays stored in the state.
-   */
+   
   id2List = {
     droppable: "items",
     droppable2: "selected",
   };
 
-  getList = (id: string) => this.state[this.id2List[id]];
+  getList = (id: string) => this.state[this.id2List[id]];*/
 
-  onDragEnd = (result) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onDragEnd = (result: any) => {
     const { source, destination } = result;
 
     // dropped outside the list
@@ -96,20 +124,28 @@ class App extends Component {
     }
 
     if (source.droppableId === destination.droppableId) {
+      /*
       const items: Quote[] = reorder(
-        this.getList(source.droppableId),
+        this.state.items,
         source.index,
         destination.index
       );
+      */
+      const todos = [...this.state.todos];
+      const [reorderedItem] = todos.splice(source.index, 1);
+      todos.splice(destination.index, 0, reorderedItem);
 
-      let state = items;
+      const state = { todos };
 
+      /*
       if (source.droppableId === "droppable2") {
         state = { selected: items };
       }
+      */
 
       this.setState(state);
-    } else {
+    }
+    /*else {
       const result = move(
         this.getList(source.droppableId),
         this.getList(destination.droppableId),
@@ -122,41 +158,58 @@ class App extends Component {
         selected: result.droppable2,
       });
     }
+    */
   };
 
   // Normally you would want to split things out into separate components.
   // But in this example everything is just done in one place for simplicity
   render() {
+    const { todos, inputValue } = this.state;
     return (
-      <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId="droppable">
-          {(provided, snapshot) => (
-            <div
-              ref={provided.innerRef}
-              style={getListStyle(snapshot.isDraggingOver)}
-            >
-              {this.state.items.map((item, index) => (
-                <Draggable key={item.id} draggableId={item.id} index={index}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      style={getItemStyle(
-                        snapshot.isDragging,
-                        provided.draggableProps.style
-                      )}
-                    >
-                      {item.content}
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <>
+        <form
+          action="
+        "
+          onSubmit={this.addTodo}
+        >
+          <input
+            type="text"
+            value={inputValue}
+            onChange={this.handleInputChange}
+          />
+          <button type="submit">Add Todo</button>
+        </form>
+
+        <DragDropContext onDragEnd={this.onDragEnd}>
+          <Droppable droppableId="droppable">
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                style={getListStyle(snapshot.isDraggingOver)}
+              >
+                {todos.map((todo, index) => (
+                  <Draggable key={todo.id} draggableId={todo.id} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        style={getItemStyle(
+                          snapshot.isDragging,
+                          provided.draggableProps.style
+                        )}
+                      >
+                        {todo.content}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </>
     );
   }
 }
