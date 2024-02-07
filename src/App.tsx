@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Container, Row } from "react-bootstrap";
+import { Container, Row, Button } from "react-bootstrap";
 import { TodoForm } from "./Form";
 
 type Todo = {
@@ -14,50 +14,6 @@ const getItems = (count: number): Todo[] =>
     content: `item ${k}`,
   }));
 
-/*
-type Quote = {
-  id: string;
-  content: string;
-};
-
-
-
-a little function to help us with reordering the result
-const reorder = (
-  list: Quote[],
-  startIndex: number,
-  endIndex: number
-): Quote[] => {
-  const result: Quote[] = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
-*/
-
-/**
- * Moves an item from one list to another list.
- 
-const move = (
-  source: Quote[],
-  destination: Quote[],
-  droppableSource,
-  droppableDestination
-): Quote[] => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
-
-  destClone.splice(droppableDestination.index, 0, removed);
-
-  const result = {};
-  result[droppableSource.droppableId] = sourceClone;
-  result[droppableDestination.droppableId] = destClone;
-
-  return result;
-};
-*/
 const grid = 10;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,6 +22,10 @@ const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
   userSelect: "none",
   padding: grid,
   margin: `0 0 ${grid}px 0`,
+  display: "flex",
+  justifyContent: "space-between",
+  overflow: "auto",
+  alignItems: "center",
 
   // change background color if dragging
   background: isDragging ? "#b9a5ca" : "white",
@@ -78,7 +38,7 @@ const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
 const getListStyle = (isDraggingOver: boolean) => ({
   background: isDraggingOver ? "lightblue" : "#b9a5ca",
   padding: grid,
-  width: 250,
+  width: 400,
 });
 
 class App extends Component {
@@ -106,67 +66,25 @@ class App extends Component {
     this.setState({ inputValue: e.target.value });
   };
 
-  /**
-   * A semi-generic way to handle multiple lists. Matches
-   * the IDs of the droppable container to the names of the
-   * source arrays stored in the state.
-   
-  id2List = {
-    droppable: "items",
-    droppable2: "selected",
-  };
-
-  getList = (id: string) => this.state[this.id2List[id]];*/
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDragEnd = (result: any) => {
     const { source, destination } = result;
 
-    // dropped outside the list
     if (!destination) {
       return;
     }
 
     if (source.droppableId === destination.droppableId) {
-      /*
-      const items: Quote[] = reorder(
-        this.state.items,
-        source.index,
-        destination.index
-      );
-      */
       const todos = [...this.state.todos];
       const [reorderedItem] = todos.splice(source.index, 1);
       todos.splice(destination.index, 0, reorderedItem);
 
       const state = { todos };
 
-      /*
-      if (source.droppableId === "droppable2") {
-        state = { selected: items };
-      }
-      */
-
       this.setState(state);
     }
-    /*else {
-      const result = move(
-        this.getList(source.droppableId),
-        this.getList(destination.droppableId),
-        source,
-        destination
-      );
-
-      this.setState({
-        items: result.droppable,
-        selected: result.droppable2,
-      });
-    }
-    */
   };
 
-  // Normally you would want to split things out into separate components.
-  // But in this example everything is just done in one place for simplicity
   render() {
     const { todos, inputValue } = this.state;
     return (
@@ -207,6 +125,27 @@ class App extends Component {
                             )}
                           >
                             {todo.content}
+                            <Button
+                              variant="button"
+                              className="btn-outline-danger"
+                              onClick={() => {
+                                const newTodos = [...this.state.todos];
+                                newTodos.splice(index, 1);
+                                this.setState({ todos: newTodos });
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                className="bi bi-trash"
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                              </svg>
+                            </Button>
                           </div>
                         )}
                       </Draggable>
