@@ -242,3 +242,12 @@ class App extends Component<{
 }
 
 export default App;
+/*
+const reorder = (list, startIndex, endIndex) => { //This line takes 3 arguments: a giving list array and index of the startIndex which is being replaced and the index of the endIndex which represent the item that is being replacing to the wanted index
+
+  const result = Array.from(list); //This line copies the array list
+  const [removed] = result.splice(startIndex, 1); //This line removes element from the array that we copied.
+  result.splice(endIndex, 0, removed); //This line adds the removed element into the wanted index
+
+return result; //This line returns the new array .
+};*/
